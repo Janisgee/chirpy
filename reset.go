@@ -2,13 +2,12 @@ package main
 
 import (
 	"net/http"
-	"os"
 )
 
 // Handler that count reset
 func (cfg *apiConfig) handlerDeleteAllUsers(w http.ResponseWriter, r *http.Request) {
-	platform := os.Getenv("PLATFORM")
-	if platform != "dev" {
+
+	if cfg.platform != "dev" {
 		respondWithError(w, http.StatusForbidden, "Not allowed to be accessed with production environment", nil)
 		return
 	}

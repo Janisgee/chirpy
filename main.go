@@ -6,10 +6,9 @@ import (
 	"net/http"
 	"os"
 	"sync/atomic"
-	"time"
 
 	"github.com/Janisgee/chirpy.git/internal/database"
-	"github.com/google/uuid"
+
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -17,13 +16,7 @@ import (
 type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
-}
-
-type User struct {
-	ID        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Email     string    `json:"email"`
+	platform       string
 }
 
 func main() {
@@ -37,6 +30,10 @@ func main() {
 	if dbURL == "" {
 		fmt.Printf("DB_URL must be set.\n")
 	}
+	platform := os.Getenv("PLATFORM")
+	if platform == "" {
+		fmt.Printf("PLATFORM must be set.\n")
+	}
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		fmt.Printf("error in connecting database: %s\n", err)
@@ -48,6 +45,7 @@ func main() {
 	apiCfg := apiConfig{
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
+		platform:       platform,
 	}
 
 	// Create an empty servemux
@@ -58,20 +56,21 @@ func main() {
 	handler := http.StripPrefix("/app", fs)
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(handler))
 	// apiCfg.middlewareMetricsInc(handler)
-	// ("/healthz") Add the readiness endpoint
-	mux.HandleFunc("GET /api/healthz", handlerReadiness)
-
-	// ("/metrics") Add the requset count endpoint
-	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerRequestCount)
 
 	// ("/reset") Add the requset count endpoint
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerDeleteAllUsers)
 
 	// ("/api/validate_chirp") connect to Chirpy API
-	mux.HandleFunc("POST /api/validate_chirp", apiCfg.handlerValidateChirp)
+	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
 
 	// ("/api/users") allow users to be created
-	mux.HandleFunc("POST /api/users", apiCfg.handlerCreateUsers)
+	mux.HandleFunc("POST /api/users", apiCfg.handlerUserCreate)
+
+	// ("/healthz") Add the readiness endpoint
+	mux.HandleFunc("GET /api/healthz", handlerReadiness)
+
+	// ("/metrics") Add the requset count endpoint
+	mux.HandleFunc("GET /admin/metrics", apiCfg.handlerRequestCount)
 
 	svr := http.Server{
 		Addr:    ":" + port,
