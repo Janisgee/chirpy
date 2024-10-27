@@ -61,7 +61,10 @@ func main() {
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerDeleteAllUsers)
 
 	// ("/api/chirps") Get all chirps
-	mux.HandleFunc("GET /api/chirps", apiCfg.handlerAllChirpsGet)
+	mux.HandleFunc("GET /api/chirps", apiCfg.handlerGetAllChirps)
+
+	// ("/api/chirps") Get one chirp
+	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerGetOneChirp)
 
 	// ("/api/chirps") Create chirp
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
