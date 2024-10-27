@@ -60,7 +60,10 @@ func main() {
 	// ("/reset") Add the requset count endpoint
 	mux.HandleFunc("POST /admin/reset", apiCfg.handlerDeleteAllUsers)
 
-	// ("/api/validate_chirp") connect to Chirpy API
+	// ("/api/chirps") Get all chirps
+	mux.HandleFunc("GET /api/chirps", apiCfg.handlerAllChirpsGet)
+
+	// ("/api/chirps") Create chirp
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
 
 	// ("/api/users") allow users to be created
