@@ -8,7 +8,6 @@ import (
 	"sync/atomic"
 
 	"github.com/Janisgee/chirpy.git/internal/database"
-
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 )
@@ -71,6 +70,9 @@ func main() {
 
 	// ("/api/users") allow users to be created
 	mux.HandleFunc("POST /api/users", apiCfg.handlerUserCreate)
+
+	// ("/api/login") allow user to login
+	mux.HandleFunc("POST /api/login", apiCfg.handlerUserLogin)
 
 	// ("/healthz") Add the readiness endpoint
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
