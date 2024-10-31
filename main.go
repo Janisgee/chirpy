@@ -16,6 +16,7 @@ type apiConfig struct {
 	fileserverHits atomic.Int32
 	db             *database.Queries
 	platform       string
+	jwtSecret      string
 }
 
 func main() {
@@ -33,6 +34,12 @@ func main() {
 	if platform == "" {
 		fmt.Printf("PLATFORM must be set.\n")
 	}
+
+	jwtSecret := os.Getenv("JWTSECRET")
+	if jwtSecret == "" {
+		fmt.Printf("JWTSECRET must be set.\n")
+	}
+
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		fmt.Printf("error in connecting database: %s\n", err)
@@ -45,6 +52,7 @@ func main() {
 		fileserverHits: atomic.Int32{},
 		db:             dbQueries,
 		platform:       platform,
+		jwtSecret:      jwtSecret,
 	}
 
 	// Create an empty servemux
@@ -73,6 +81,15 @@ func main() {
 
 	// ("/api/login") allow user to login
 	mux.HandleFunc("POST /api/login", apiCfg.handlerUserLogin)
+
+	// ("/api/refresh") allow to get refresh token
+	mux.HandleFunc("POST /api/refresh", apiCfg.handlerRefreshToken)
+
+	// ("/api/revoke") allow to revoke token
+	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevokeToken)
+
+	// ("/api/revoke") allow to update email and password their own
+	mux.HandleFunc("PUT /api/users", apiCfg.handlerUpdateUser)
 
 	// ("/healthz") Add the readiness endpoint
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
