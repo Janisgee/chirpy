@@ -11,11 +11,12 @@ import (
 )
 
 type User struct {
-	ID        uuid.UUID `json:"id"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
-	Email     string    `json:"email"`
-	Password  string    `json:"-"`
+	ID          uuid.UUID `json:"id"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+	Email       string    `json:"email"`
+	Password    string    `json:"-"`
+	IsChirpyRed bool      `json:"is_chirpy_red"`
 }
 
 func (cfg *apiConfig) handlerUserCreate(w http.ResponseWriter, r *http.Request) {
@@ -51,10 +52,11 @@ func (cfg *apiConfig) handlerUserCreate(w http.ResponseWriter, r *http.Request) 
 
 	// Maps the database user to your API User struct
 	user := User{
-		ID:        userdata.ID,
-		CreatedAt: userdata.CreatedAt,
-		UpdatedAt: userdata.UpdatedAt,
-		Email:     userdata.Email,
+		ID:          userdata.ID,
+		CreatedAt:   userdata.CreatedAt,
+		UpdatedAt:   userdata.UpdatedAt,
+		Email:       userdata.Email,
+		IsChirpyRed: userdata.IsChirpyRed,
 	}
 
 	// Returns the correct 201 status code

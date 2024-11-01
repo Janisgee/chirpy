@@ -72,10 +72,12 @@ func (cfg *apiConfig) handlerUserLogin(w http.ResponseWriter, r *http.Request) {
 	// Maps the database user to your API User struct
 	userResponse := response{
 		User: User{
-			ID:        userdata.ID,
-			CreatedAt: userdata.CreatedAt,
-			UpdatedAt: userdata.UpdatedAt,
-			Email:     userdata.Email},
+			ID:          userdata.ID,
+			CreatedAt:   userdata.CreatedAt,
+			UpdatedAt:   userdata.UpdatedAt,
+			Email:       userdata.Email,
+			IsChirpyRed: userdata.IsChirpyRed,
+		},
 		Token:         accessToken,
 		Refresh_token: refreshTokenData.Token,
 	}

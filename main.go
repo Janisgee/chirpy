@@ -91,6 +91,12 @@ func main() {
 	// ("/api/revoke") allow to update email and password their own
 	mux.HandleFunc("PUT /api/users", apiCfg.handlerUpdateUser)
 
+	// ("/api/chirps/{chirpID}") delete user chip
+	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerDeleteChirpByUser)
+
+	// ("/api/revoke") set user to be is_chirpy_red
+	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerWebhooks)
+
 	// ("/healthz") Add the readiness endpoint
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
 
