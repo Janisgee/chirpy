@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/Janisgee/chirpy.git/internal/auth"
 	"github.com/google/uuid"
 )
 
@@ -16,11 +17,21 @@ func (cfg *apiConfig) handlerWebhooks(w http.ResponseWriter, r *http.Request) {
 			UserID uuid.UUID `json:"user_id"`
 		}
 	}{}
+	// Check api key in header matches ours one
+	apiString, err := auth.GetAPIKey(r.Header)
+	if err != nil {
+		respondWithError(w, http.StatusUnauthorized, "there is no api key in the header", err)
+		return
+	}
+	if apiString != cfg.polkaApiKey {
+		respondWithError(w, http.StatusUnauthorized, "api key does not match", err)
+		return
+	}
 
 	// Decode request body
 	decoder := json.NewDecoder(r.Body)
 
-	err := decoder.Decode(&params)
+	err = decoder.Decode(&params)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Couldn't decode parameters", err)
 		return

@@ -17,6 +17,7 @@ type apiConfig struct {
 	db             *database.Queries
 	platform       string
 	jwtSecret      string
+	polkaApiKey    string
 }
 
 func main() {
@@ -40,6 +41,11 @@ func main() {
 		fmt.Printf("JWTSECRET must be set.\n")
 	}
 
+	polkaApiKey := os.Getenv("POLKA_KEY")
+	if polkaApiKey == "" {
+		fmt.Printf("POLKA_KEY must be set.\n")
+	}
+
 	dbConn, err := sql.Open("postgres", dbURL)
 	if err != nil {
 		fmt.Printf("error in connecting database: %s\n", err)
@@ -53,6 +59,7 @@ func main() {
 		db:             dbQueries,
 		platform:       platform,
 		jwtSecret:      jwtSecret,
+		polkaApiKey:    polkaApiKey,
 	}
 
 	// Create an empty servemux
