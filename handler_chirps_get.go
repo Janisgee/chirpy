@@ -3,32 +3,53 @@ package main
 import (
 	"net/http"
 
+	"github.com/Janisgee/chirpy.git/internal/database"
 	"github.com/google/uuid"
 )
 
 // Handler to get all chirps
 func (cfg *apiConfig) handlerGetAllChirps(w http.ResponseWriter, r *http.Request) {
 
-	//Get all chirps data from database
-	allChirpsData, err := cfg.db.GetAllChirps(r.Context())
+	// Grab the query parameters from the URL (author_id)
+	authorIDString := r.URL.Query().Get("author_id")
+
+	var chirpsResult []database.Chirp
+
+	// Parse string into UUID
+	authorID, err := uuid.Parse(authorIDString)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, "Couldn't retrive all chirps from database", err)
-		return
-	}
-	if len(allChirpsData) == 0 {
-		respondWithJSON(w, http.StatusOK, Chirp{})
-		return
+		respondWithError(w, http.StatusBadRequest, "Fail to convert author ID string into UUID format", err)
 	}
 
+	if authorID != uuid.Nil {
+		chirpsResult, err = cfg.db.GetAllChipsByUserID(r.Context(), authorID)
+		if err != nil {
+			respondWithError(w, http.StatusNotFound, "Couldn't found chip data with the provided author id", err)
+			return
+		}
+
+	} else {
+
+		//Get all chirps data from database
+		chirpsResult, err := cfg.db.GetAllChirps(r.Context())
+		if err != nil {
+			respondWithError(w, http.StatusInternalServerError, "Couldn't retrive all chirps from database", err)
+			return
+		}
+		if len(chirpsResult) == 0 {
+			respondWithJSON(w, http.StatusOK, Chirp{})
+			return
+		}
+	}
 	arrayChirps := []Chirp{}
 	// Maps the database chirp to API chirp struct
-	for i := range allChirpsData {
+	for i := range chirpsResult {
 		chirp := Chirp{
-			ID:        allChirpsData[i].ID,
-			CreatedAt: allChirpsData[i].CreatedAt,
-			UpdatedAt: allChirpsData[i].UpdatedAt,
-			Body:      allChirpsData[i].Body,
-			UserID:    allChirpsData[i].UserID,
+			ID:        chirpsResult[i].ID,
+			CreatedAt: chirpsResult[i].CreatedAt,
+			UpdatedAt: chirpsResult[i].UpdatedAt,
+			Body:      chirpsResult[i].Body,
+			UserID:    chirpsResult[i].UserID,
 		}
 
 		arrayChirps = append(arrayChirps, chirp)

@@ -14,9 +14,13 @@ RETURNING *;
 SELECT * FROM chirps 
 ORDER BY created_at ASC;
 
+-- name: GetAllChipsByUserID :many
+SELECT * FROM chirps WHERE user_id=$1
+ORDER BY created_at ASC;
 
 -- name: GetOneChirp :one
 SELECT * FROM chirps WHERE id=$1 LIMIT 1;
+
 
 -- name: DeleteOneChirpByUserId :one
 DELETE FROM chirps WHERE id=$1 AND user_id=$2

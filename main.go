@@ -71,14 +71,14 @@ func main() {
 	mux.Handle("/app/", apiCfg.middlewareMetricsInc(handler))
 	// apiCfg.middlewareMetricsInc(handler)
 
-	// ("/reset") Add the requset count endpoint
-	mux.HandleFunc("POST /admin/reset", apiCfg.handlerDeleteAllUsers)
-
 	// ("/api/chirps") Get all chirps
 	mux.HandleFunc("GET /api/chirps", apiCfg.handlerGetAllChirps)
 
 	// ("/api/chirps") Get one chirp
 	mux.HandleFunc("GET /api/chirps/{chirpID}", apiCfg.handlerGetOneChirp)
+
+	// ("/reset") Add the requset count endpoint
+	mux.HandleFunc("POST /admin/reset", apiCfg.handlerDeleteAllUsers)
 
 	// ("/api/chirps") Create chirp
 	mux.HandleFunc("POST /api/chirps", apiCfg.handlerChirpsCreate)
@@ -95,14 +95,14 @@ func main() {
 	// ("/api/revoke") allow to revoke token
 	mux.HandleFunc("POST /api/revoke", apiCfg.handlerRevokeToken)
 
+	// ("/api/revoke") set user to be is_chirpy_red
+	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerWebhooks)
+
 	// ("/api/revoke") allow to update email and password their own
 	mux.HandleFunc("PUT /api/users", apiCfg.handlerUpdateUser)
 
 	// ("/api/chirps/{chirpID}") delete user chip
 	mux.HandleFunc("DELETE /api/chirps/{chirpID}", apiCfg.handlerDeleteChirpByUser)
-
-	// ("/api/revoke") set user to be is_chirpy_red
-	mux.HandleFunc("POST /api/polka/webhooks", apiCfg.handlerWebhooks)
 
 	// ("/healthz") Add the readiness endpoint
 	mux.HandleFunc("GET /api/healthz", handlerReadiness)
